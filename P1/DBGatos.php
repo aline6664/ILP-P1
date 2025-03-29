@@ -21,7 +21,7 @@ class DBGatos {
 
     public function create($nome, $raca, $cor, $sexo) {
         // executar INSERT INTO gatos
-        $sql = 'INSERT INTO ' . $this->tableName . ' (nome, raca, cor, sexo) VALUES (:param1, :param2, :param3, :param4)';
+        $sql = 'INSERT INTO ' . $this->tableName . ' (gat_nome, gat_raca, gat_cor, gat_sexo) VALUES (:param1, :param2, :param3, :param4)';
         try {
             $acesso = $this->conexao->prepare($sql);
             $acesso->bindParam(':param1', $nome);
@@ -29,9 +29,8 @@ class DBGatos {
             $acesso->bindParam(':param3', $cor);
             $acesso->bindParam(':param4', $sexo);
             if ($acesso->execute()) {
-                // VERIFICAR DEPOIS
                 // return true;
-                // return $this->conexao->lastInsertId();
+                return $this->conexao->lastInsertId(); // retornando o valor do id auto incrementado
             }
             else {
                 return false;
@@ -57,10 +56,10 @@ class DBGatos {
 
     public function recoveryByName($nomeBusca) {
         // retornar a linha da tabela com o nome igual
-        $sql = 'SELECT * FROM ' . $this->tableName . ' WHERE nome = :nome';
+        $sql = 'SELECT * FROM ' . $this->tableName . ' WHERE gat_nome = :gat_nome';
         try {
             $acesso = $this->conexao->prepare($sql);
-            $acesso->bindParam(':nome', $nomeBusca);
+            $acesso->bindParam(':gat_nome', $nomeBusca);
             $acesso->execute();
             return $acesso->fetchAll(PDO::FETCH_ASSOC); // retorna as linhas encontradas
         }
@@ -73,19 +72,19 @@ class DBGatos {
         $campos = []; // array de campos que foram alterados
         $parametros = []; // array de valores recebidos
         if ($nome) {
-            $campos[] = "nome = ?";
+            $campos[] = "gat_nome = ?";
             $parametros[] = $nome;
         }
         if ($raca) {
-            $campos[] = "raca = ?";
+            $campos[] = "gat_raca = ?";
             $parametros[] = $raca;
         }
         if ($cor) {
-            $campos[] = "cor = ?";
+            $campos[] = "gat_cor = ?";
             $parametros[] = $cor;
         }
         if ($sexo) {
-            $campos[] = "sexo = ?";
+            $campos[] = "gat_sexo = ?";
             $parametros[] = $sexo;
         }
         // se nenhum campo for passado (array de campos está vazio)
@@ -93,7 +92,7 @@ class DBGatos {
             return false;
         }
         // query SQL criado dinamicamente
-        $sql = 'UPDATE ' . $this->tableName . ' SET ' . implode(", ", $campos) . ' WHERE codigo = ?';
+        $sql = 'UPDATE ' . $this->tableName . ' SET ' . implode(", ", $campos) . ' WHERE gat_cod = ?';
         $parametros[] = $codigo;
     
         try {
@@ -107,10 +106,10 @@ class DBGatos {
 
     public function delete($codigo) {
         // excluir o registro com codigo
-        $sql = 'DELETE FROM ' . $this->tableName . ' WHERE codigo = :codigo';
+        $sql = 'DELETE FROM ' . $this->tableName . ' WHERE gat_cod = :gat_cod';
         try {
             $acesso = $this->conexao->prepare($sql);
-            $acesso->bindParam(':codigo', $codigo);
+            $acesso->bindParam(':gat_cod', $codigo);
             if ($acesso->execute()) {
                 return true;
             }

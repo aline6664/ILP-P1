@@ -6,7 +6,8 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script type="text/javascript" src="script.js"></script>
     <title>Formulário de Cadastro</title>
 </head>
 <body>
@@ -25,25 +26,31 @@
         <button type="submit" name="acao" value="incluir">Enviar</button>
         <button type="submit" name="acao" value="listar">Listar todos</button>
         <button type="submit" name="acao" value="buscarNome">Consultar por nome</button>
-        <button type="submit" name="acao" value="alterar">Alterar</button>
-        <button type="submit" name="acao" value="excluir">Excluir</button>
-    </form>
+
+        <button type="button" name="acao" value="selecionarAlterar">Alterar</button>
+        <button type="button" name="acao" value="selecionarExcluir">Excluir</button>
+        <!--Cria um campo para inserir o id (para alterar/excluir)-->
+        <div id="campoDinamico"> </div>
+    </form> <br>
 
     <?php
     // Verifica se o formulário foi submetido
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Captura os dados do formulário
         $acao = $_POST['acao'];
-        // $codigo = 
         $nome = $_POST['nome'];
         $raca = $_POST['raca'];
         $cor = $_POST['cor'];
         $sexo = $_POST['sexo'];
+        if (isset($_POST['codigo'])) { // se o codigo for passado pelo usuario no alterar/excluir
+            $codigoBusca = $_POST['codigo'];
+        }
 
         $bdGatos = new DBGatos();
         // Incluir dados do novo gato (create)
         if ($acao == "incluir") {
-            if ($bdGatos->create($nome, $raca, $cor, $sexo)) {
+            $codigo = $bdGatos->create($nome, $raca, $cor, $sexo); // buscando o codigo auto incrementado
+            if ($codigo !== false) {
                 echo "<p>Cadastro inserido com sucesso.</p>";
             }
             else {
@@ -55,11 +62,11 @@
             $listaGatos = $bdGatos->recovery();
             if ($listaGatos) {
                 foreach ($listaGatos as $gato) {
-                    echo "Código: " . $gato['codigo'] . "<br>";
-                    echo "Nome: " . $gato['nome'] . "<br>";
-                    echo "Raça: " . $gato['raca'] . "<br>";
-                    echo "Cor: " . $gato['cor'] . "<br>";
-                    echo "Sexo: " . $gato['sexo'] . "<br><br>";
+                    echo "Código: " . $gato['gat_cod'] . "<br>";
+                    echo "Nome: " . $gato['gat_nome'] . "<br>";
+                    echo "Raça: " . $gato['gat_raca'] . "<br>";
+                    echo "Cor: " . $gato['gat_cor'] . "<br>";
+                    echo "Sexo: " . $gato['gat_sexo'] . "<br><br>";
                 }
             }
             else {
@@ -72,11 +79,11 @@
             // var_dump($listaGatos); // teste para checar array de dados
             if ($listaGatos && is_array($listaGatos)) { // array pois varios gatos podem ter mesmo nome
                 foreach ($listaGatos as $gato) {
-                    echo "Código: " . $gato['codigo'] . "<br>";
-                    echo "Nome: " . $gato['nome'] . "<br>";
-                    echo "Raça: " . $gato['raca'] . "<br>";
-                    echo "Cor: " . $gato['cor'] . "<br>";
-                    echo "Sexo: " . $gato['sexo'] . "<br><br>";
+                    echo "Código: " . $gato['gat_cod'] . "<br>";
+                    echo "Nome: " . $gato['gat_nome'] . "<br>";
+                    echo "Raça: " . $gato['gat_raca'] . "<br>";
+                    echo "Cor: " . $gato['gat_cor'] . "<br>";
+                    echo "Sexo: " . $gato['gat_sexo'] . "<br><br>";
                 }
             }
             else {
@@ -85,7 +92,7 @@
         }
         // Alterar dados do gato registrado (update)
         else if ($acao == "alterar") {
-            $gato = $bdGatos->update($codigo, $nome, $raca, $cor, $sexo);
+            $gato = $bdGatos->update($codigoBusca, $nome, $raca, $cor, $sexo);
             if ($gato) {
                 echo "<p>Dados alterados com sucesso.</p>";
             }
@@ -95,7 +102,7 @@
         }
         // Apagar registro do gato (delete)
         else if ($acao == "excluir") {
-            if ($bdGatos->delete($codigo)) {
+            if ($bdGatos->delete($codigoBusca)) {
                 echo "<p>Registro apagado com sucesso.</p>";
             }
             else {
@@ -108,7 +115,9 @@
 
         // Exibe os dados - teste para verificar se os dados foram recebidos
         echo "<h2>Dados Recebidos:</h2>";
-        echo "Código: " . $codigo . "<br>";
+        if (isset($_POST['codigo'])) {
+            echo "Código: . $codigoBusca . <br>";
+        }
         echo "Nome: " . $nome . "<br>";
         echo "Raça: " . $raca . "<br>";
         echo "Cor: " . $cor . "<br>";
